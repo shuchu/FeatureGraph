@@ -27,8 +27,6 @@ if not(issparse(data))
     data = sparse(data);
 end
 
-
-
 % parallel code for calculating sparse codes.
 W = zeros(n-1,n);
 %NZ = zeros(m,n);

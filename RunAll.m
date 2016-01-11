@@ -19,13 +19,24 @@ if exist('fea') && exist('gnd')
    ClusterLabels = gnd;
 end
 
-size(Data)
-NumC
+%%%%%%%%%
+% now matlab has variables: Data, ClusterLabels, NumC;
+%%%%%%%%%
+
+%% build sample graph.
+myG.SG = L1GraphGreedy(Data',1e-5);
+
+%% build feature graph.
+myG.FG = FeatureGraph(Data',1e-5);
+
+%% save data.
+ofname = sprintf('%s_g.mat',dataset{i});
+save(ofname,'myG');
 
 %%% run test scripts;
-Data = zscore(Data); %% z-score normalization
-checkTimeSpec(Data,NumC,ClusterLabels);
+%Data = zscore(Data); %% z-score normalization
+%checkTimeSpec(Data,NumC,ClusterLabels);
 
-end
+end %% end for
 
 diary off;

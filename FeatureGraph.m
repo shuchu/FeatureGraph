@@ -26,20 +26,31 @@ X = X./(d*ones(1,N));
 
 
 %% build the sparse graph
-G = zeros(M,M);
-
-for id=1:M
+W = zeros(M-1,M);
+parfor id=1:M
 idx = zeros(M-1,1); 
 idx(1:id-1) = 1:id-1;
 idx(id:end) = id+1:M;
 y = X(id,:)';
 A = X(idx,:)';
-[x] = OMP(A,y,th);
-
-%% put data back to G 
-%% let Column be one record
-G(1:id-1,id) = x(1:id-1);
-G(id+1:end,id) = x(id:end);
+if (M <= N)
+  [x] = OMP(A,y,M-1);
+else
+  [x] = OMP(A,y,th);
 end
+W(:,id) = x;
+end
+% modify W from [n-1,n] to [n,n]
+W=W';
+% j > i part
+U = triu(W);
+% j < i part
+L = tril(W,-1);
+
+% extend the size
+pad = zeros(M,1);
+U = [pad U];
+L = [L pad];
+G = U + L;
 
 end
