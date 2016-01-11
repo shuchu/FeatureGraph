@@ -17,12 +17,12 @@ function [G] = FeatureGraph(X,th)
 
 %% normalize the data by (1) mean of each feature equals to zero; 
 %% (2) features have unit lenght;
-[M,N] = size(X); %% M: #features; N: #samples
-mu = mean(X,2);
-X = X - mu*ones(1,N);
-d = sqrt(sum(X.^2,2));
-d(d==0) = 1;
-X = X./(d*ones(1,N));
+% [M,N] = size(X); %% M: #features; N: #samples
+% mu = mean(X,2);
+% X = X - mu*ones(1,N);
+% d = sqrt(sum(X.^2,2));
+% d(d==0) = 1;
+% X = X./(d*ones(1,N));
 
 
 %% build the sparse graph

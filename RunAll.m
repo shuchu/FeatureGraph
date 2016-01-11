@@ -23,11 +23,21 @@ end
 % now matlab has variables: Data, ClusterLabels, NumC;
 %%%%%%%%%
 
+%% normalization
+X = Data';
+[M,N] = size(X); %% M: #features; N: #samples
+mu = mean(X,2);
+X = X - mu*ones(1,N);
+d = sqrt(sum(X.^2,2));
+d(d==0) = 1;
+X = X./(d*ones(1,N));
+
+
 %% build sample graph.
-myG.SG = L1GraphGreedy(Data',1e-5);
+myG.SG = L1GraphGreedy(X,1e-5);
 
 %% build feature graph.
-myG.FG = FeatureGraph(Data',1e-5);
+myG.FG = FeatureGraph(X,1e-5);
 
 %% save data.
 ofname = sprintf('%s_g.mat',dataset{i});
