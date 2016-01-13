@@ -46,6 +46,12 @@ myG.FG = SparseKnnGraph(X',loc,1e-3);
 d_dist = X'*X;
 [~,loc] = mink(d_dist,s_K);
 loc(1,:) = [];
+
+%% need to normalized X 
+d = sqrt(sum(X.^2,1));
+d(d==0) = 1;
+X = X./(ones(M,1)*d);
+
 myG.SG = SparseKnnGraph(X,loc,1e-5);
 
 
