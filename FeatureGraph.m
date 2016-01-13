@@ -3,7 +3,7 @@ function [G] = FeatureGraph(X,th)
 % 
 % Algorithms:
 %   1, normalize features;
-%   2, generate the graph using OMP
+%   2, generate the graph using OMP solver.
 % 
 % Input: 
 %    X -- the data matrix, row: feature, col: sample
@@ -14,7 +14,8 @@ function [G] = FeatureGraph(X,th)
 %
 %
 %  Mon Jan  4 10:18:04 EST 2016
- [M,N] = size(X); %% M: #features; N: #samples
+
+[M,N] = size(X); %% M: #features; N: #samples
  
 %% normalize the data by (1) mean of each feature equals to zero; 
 %% (2) features have unit lenght;
