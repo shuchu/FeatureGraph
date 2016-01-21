@@ -1,8 +1,0 @@
-BreastTissue
-{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('load')" style="font-weight:bold">load</a>
-Unable to read file 'BreastTissue'. No such file or directory.
-
-Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('RunAll', '/Users/shuchu/Dropbox/FeatureSelection/code/RunAll.m', 14)" style="font-weight:bold">RunAll</a> (<a href="matlab: opentoline('/Users/shuchu/Dropbox/FeatureSelection/code/RunAll.m',14,0)">line 14</a>)
-load(dataset{i});
-} 
-RunAll

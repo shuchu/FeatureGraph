@@ -22,8 +22,8 @@ fprintf('%f signals processed per second\n',size(X,2)/t);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Regularization path of a single signal 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-X=randn(64,1);
-D=randn(64,10);
-param.L=5;
-D=D./repmat(sqrt(sum(D.^2)),[size(D,1) 1]);
-[alpha path]=mexOMP(X,D,param);
+%X=randn(64,1);
+%D=randn(64,10);
+%param.L=5;
+%D=D./repmat(sqrt(sum(D.^2)),[size(D,1) 1]);
+%[alpha path]=mexOMP(X,D,param);
