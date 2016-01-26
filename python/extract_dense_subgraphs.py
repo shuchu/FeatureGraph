@@ -12,6 +12,7 @@ Thu Jan 21 22:16:16 EST 2016
 
 import sys
 import argparse
+import math
 import networkx as nx
 
 
@@ -28,7 +29,7 @@ def load_graph(G,nfname,efname):
     # skip the first line 
     next(f)
     for l in f:
-      G.add_node(int(l.strip()))
+      G.add_node(int(l.strip()),density=0.0,core=False)
 
   print 'loading edges...' + efname
   # load edges from .CSV file
@@ -38,18 +39,46 @@ def load_graph(G,nfname,efname):
       t = line.strip().split(',')
       G.add_edge(int(t[0]),int(t[1]),weight=float(t[2]))
 
-def ExtractDenseSubgraph(DiG):
-  cf = 10
+""" change the distance into similarity """
+def reverse_weight(G):
+  for e in G.edges_iter(data=True):
+    if abs(e[2]['weight']-0.00001) < 0.00001:
+      e[2]['weight'] = 100000;
+    else:
+      e[2]['weight'] = 1.0/e[2]['weight']
+  ##debug
+  #print G.edges(data='weight')
+
+""" calculate influence """
+def calc_influence(DiG,cf):
   sp = nx.all_pairs_dijkstra_path_length(DiG,cf)
-  print sp
+  for key in sp:
+    d = sp[key]
+    for idx in d:
+      # add influence to expect node
+      dd = d[idx]/cf
+      G.node[idx]['density'] += (1.0-dd*dd)*3/4 
+
+def find_core_nodes(G,th):
+  for nd in G.nodes_iter(data=True):
+    if nd[1]['density'] >= th:
+      nd[1]['core'] = True
+    
+    print nd
+    
+
+
+
 
 
 # ----------- Test ------------
 def test(G):
   graph_info(G)
-  ExtractDenseSubgraph(G)
-  
-
+  #print G.nodes(data=True)
+  #print G.edges(data=True)
+  reverse_weight(G)
+  calc_influence(G,10)
+  find_core_nodes(G,3)
 
 if __name__ == '__main__':
   if len(sys.argv) != 3:

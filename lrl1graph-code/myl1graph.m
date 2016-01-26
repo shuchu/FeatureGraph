@@ -13,8 +13,8 @@ X = X./repmat(sqrt(sum(X.^2)),d,1);
 Xinit = zeros(n+d-1,1);
 talpha = zeros(n+d-1,n);
 %matlabpool open;
-parfor i = 1:n,
-    fprintf('process datum %d\n', i);
+for i = 1:n,
+    %fprintf('process datum %d\n', i);
     Xflag = ones(1,n); Xflag(i) = 0; Xflag = logical(Xflag);
     A = [X(:,Xflag) eye(d)];
     Y = X(:,i);
