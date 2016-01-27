@@ -13,6 +13,7 @@ Thu Jan 21 22:16:16 EST 2016
 import sys
 import argparse
 import math
+import csv
 import networkx as nx
 
 
@@ -29,7 +30,7 @@ def load_graph(G,nfname,efname):
     # skip the first line 
     next(f)
     for l in f:
-      G.add_node(int(l.strip()),density=0.0,core=False)
+      G.add_node(int(l.strip()),density=0.0,core=False,tag=False)
 
   print 'loading edges...' + efname
   # load edges from .CSV file
@@ -42,7 +43,7 @@ def load_graph(G,nfname,efname):
 """ change the distance into similarity """
 def reverse_weight(G):
   for e in G.edges_iter(data=True):
-    if abs(e[2]['weight']-0.00001) < 0.00001:
+    if abs(e[2]['weight']) <= 0.00001:
       e[2]['weight'] = 100000;
     else:
       e[2]['weight'] = 1.0/e[2]['weight']
@@ -59,14 +60,38 @@ def calc_influence(DiG,cf):
       dd = d[idx]/cf
       G.node[idx]['density'] += (1.0-dd*dd)*3/4 
 
-def find_core_nodes(G,th):
+def extract_subgraphs(G,th):
   for nd in G.nodes_iter(data=True):
-    if nd[1]['density'] >= th:
+    if nd[1]['density'] <= th:
       nd[1]['core'] = True
-    
-    print nd
-    
+  
+  sgraphs = [];
+  for nd in G.nodes_iter(data=True):
+    if nd[1]['core']:
+      if nd[1]['tag']:
+        continue
+      ## BFS
+      sub_g = [];
+      stack = []
+      stack.append(nd[0])
+      while stack:
+        p = stack[-1]
+        sub_g.append(p)
+        G.node[p]['tag']=True
+        stack.pop()
+        for q in G.successors_iter(p):
+          if G.node[q]['core'] and not G.node[q]['tag']:
+            stack.append(q)
+            G.node[q]['tag']=True
 
+        for q in G.predecessors_iter(p):
+          if G.node[q]['core'] and not G.node[q]['tag']:
+            stack.append(q)
+            G.node[q]['tag']=True
+
+      sgraphs.append(sub_g)
+
+  return sgraphs
 
 
 
@@ -78,7 +103,13 @@ def test(G):
   #print G.edges(data=True)
   reverse_weight(G)
   calc_influence(G,10)
-  find_core_nodes(G,3)
+  subgraphs = extract_subgraphs(G,3.0)
+
+  ## save subgraphs
+  with open('subgraphs.csv','w') as f:
+    wr = csv.writer(f,dialect='excel')
+    wr.writerows(subgraphs)  
+      
 
 if __name__ == '__main__':
   if len(sys.argv) != 3:
