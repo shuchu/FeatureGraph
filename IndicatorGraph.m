@@ -26,10 +26,10 @@ R = Y;
 
 for i=1:dy,
     y = Y(:,i);
-    e = norm(y)^2 - max(X'*y,zeros(n,1)).^2;
+    e = norm(y)^2 - max(X'*y,zeros(d,1)).^2;
     [~,iy(i)] = min(e);
-    x_est = lsqnonneg(Phi(:,iy(i)),y);
-    R(:,i) = R(:,i) - Phi(:.iy(i))*x_est;
+    x_est = lsqnonneg(X(:,iy(i)),y);
+    R(:,i) = R(:,i) - X(:,iy(i))*x_est;
 end
 
 % local search over graph 
@@ -42,38 +42,39 @@ res = zeros(dy,1);
 pre_res = zeros(dy,1); %% initial value
 fea_path = zeros(dy,d);
 fea_path(:,1) = iy; % the first node is iy
-ite = 1;
+iter = 1;
 selected = zeros(d,1);
 selected(iy,1) = 1;
-
-while K > 0,
+K = K - dy;
+while K>0,
     for i = 1:dy,
-       res(i) = norm(R(:i))^2;
+       res(i) = norm(R(:,i))^2;
        if abs(pre_res(i) - res(i)) < 1e-5, break; end;
        
        %find one ring neighbor as dictionary
-       [~,ids] = find(G(:,fea_path(ite,i)) > 0);
+       ids = find(G(:,fea_path(i,iter)));
        % remove selected ids;
        ids(logical(selected(ids))) = [];
-       if length(ids) == 0, break; end;
+       if isempty(ids), break; end;
        D = X(:,ids);
        y = R(:,i);
-       e = norm(y)^2 - max(D'*y,zeros(n,1)).^2;
+       e = norm(y)^2 - max(D'*y,zeros(length(ids),1)).^2;
        [~,id] = min(e);
        gid = ids(id);%% id of graph node
-       fea_path(ite+1,i) = gid;
-       x_est = lsqnonneg(X(:,fea_path(1:ite+1,i)),y);
-       R(:,i) = R(:,i) - X(:,fea_path(1:ite+1,i))*x_est;
+       fea_path(i,iter+1) = gid;
+       x_est = lsqnonneg(X(:,fea_path(i,1:iter+1)),y);
+       R(:,i) = R(:,i) - X(:,fea_path(i,1:iter+1))*x_est;
        pre_res = res;
     end
     
-    %% if  K-K*ite < dy, we only selected top ones.
-    req_fea_num = K-K*ite;
-    if req_fea_num < dy,
+    %% if K-dy*iter < dy, we only selected node which has small approx error.
+    if K < dy,
         [~,id] = sort(res);
-        fea_path(ite+1,id(1:K-req_fea_num)) = 0;
+        fea_path(id(K+1:end),iter+1) = 0;
+        K = 0;
     end
-    ite += 1;
+    iter = iter+1;
+    K = K - dy;
 end %% end while
 
 h = fea_path;
