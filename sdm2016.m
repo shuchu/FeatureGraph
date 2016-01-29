@@ -7,37 +7,93 @@
 %  ClusterLabels: ground truth of labels.
 %
 
+%%%%%%%%%%%%%% 
+% run feature graph, and local search
+%%%%%%%%%%%%%%
+%
+% parameters:
+K = 10;
+lambda = 0.1;
+
+X = normalize(Data);
+[n,d] = size(X);
+
+%% find indcator vector
+D = EuDist2(X);
+opts.t = mean(mean(D));
+W = constructW(X,opts);
+Y = Eigenmap(W,NumC);
+
+%% build sparse graph
+%% 1. for indicator vector side
+Y = normalize(Y);
+Xinit = zeros(n+d,1);
+talpha = zeros(n+d,NumC);
+
+for i = 1:NumC,
+    XX = [X eye(n)];
+    y = Y(:,i);
+    Xout = l1ls_featuresign(XX,y,lambda/2,Xinit);
+    talpha(:,i) = Xout;
+end
+alpha = talpha(1:d,:);
+
+mcfs_idx = zeros(d,1);
+for i=1:size(alpha,2)
+   id = find(alpha(:,i)); 
+   mcfs_idx(id) = 1;
+end
+
+mcfs_idx = find(mcfs_idx);
+
+
+%% 2. build feature graph
+%G = l1graphknn(Data,lambda,K);
+
+
+%% check performance
+% find the most similar features in Graph
+%sim = Y'*X; %% NumC x d
+%[~,fs_1] = max(sim');
+
+%. basic performance, NumC feaures
+%[nmi,ac] = kmeansPer(X(:,fs_1),ClusterLabels,NumC)
+
+%2. 
+
+
+
 
 %==============================================================
 %  Check inconsistency
 %==============================================================
 %
 %
-fea = Data;
-gnd = ClusterLabels;
-nClusters = length(unique(gnd)); %% or NumC
-%scale the feature of input data
-fea = ScaleRow(fea')';
-
-rng('default');
-%Unsupervised feature selection using MCFS
-options = [];
-options.nUseEigenfunction = 9;  
-%FeaNumCandi = [5:5:40];
-[FeaIndex,FeaNumCandi,egvec,err] = myMCFS_p(fea,FeaNumCandi,options);
-
-%Clustering using selected features
-disp(['#feature ','SR err ','NMI ','AC']);
-for i = 1:length(FeaNumCandi)
-  SelectFeaIdx = FeaIndex{i};
-  feaNew = fea(:,SelectFeaIdx);
-  rng('default');
-  label = litekmeans(feaNew,nClusters,'Replicates',20);
-  res = bestMap(gnd,label);
-  ACC = length(find(gnd==res))/length(gnd);
-  MIhat = MutualInfo(gnd,res);
-  disp([num2str(FeaNumCandi(i)),' ',num2str(err{i},'%.4f'),' ',num2str(MIhat,'%.f'),' ',num2str(ACC,'%.4f')]);
-end
+%fea = Data;
+%gnd = ClusterLabels;
+%nClusters = length(unique(gnd)); %% or NumC
+%%scale the feature of input data
+%fea = ScaleRow(fea')';
+%
+%rng('default');
+%%Unsupervised feature selection using MCFS
+%options = [];
+%options.nUseEigenfunction = 9;  
+%%FeaNumCandi = [5:5:40];
+%[FeaIndex,FeaNumCandi,egvec,err] = myMCFS_p(fea,FeaNumCandi,options);
+%
+%%Clustering using selected features
+%disp(['#feature ','SR err ','NMI ','AC']);
+%for i = 1:length(FeaNumCandi)
+%  SelectFeaIdx = FeaIndex{i};
+%  feaNew = fea(:,SelectFeaIdx);
+%  rng('default');
+%  label = litekmeans(feaNew,nClusters,'Replicates',20);
+%  res = bestMap(gnd,label);
+%  ACC = length(find(gnd==res))/length(gnd);
+%  MIhat = MutualInfo(gnd,res);
+%  disp([num2str(FeaNumCandi(i)),' ',num2str(err{i},'%.4f'),' ',num2str(MIhat,'%.f'),' ',num2str(ACC,'%.4f')]);
+%end
 
 
 
