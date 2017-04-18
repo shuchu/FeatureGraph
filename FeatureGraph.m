@@ -15,12 +15,12 @@ function [G] = FeatureGraph(X,th)
 %
 %  Mon Jan  4 10:18:04 EST 2016
 tic;
-[N,M] = size(X); %% M: #features; N: #samples
+[~,M] = size(X); %% M: #features; N: #samples
 
 %% build the sparse graph
-param.L = 10;
-param.eps = 0.1;
-params.numThreads=-1;
+%param.L = 10;
+param.eps = min(0.1,th);
+param.numThreads=-1;
 W = zeros(M-1,M);
 parfor id=1:M
 idx = zeros(M-1,1); 
@@ -28,7 +28,7 @@ idx(1:id-1) = 1:id-1;
 idx(id:end) = id+1:M;
 y = X(:,id);
 D = X(:,idx);
-[x] = mexOMP(X,D,param);
+[x,~] = mexOMP(y,D,param);
 W(:,id) = x;
 end
 % modify W from [n-1,n] to [n,n]

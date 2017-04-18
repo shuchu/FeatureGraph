@@ -43,7 +43,7 @@ for t=1:n;
     visited_mark(j) = 1;  
     S(t) = j;
     x_est = lsqnonneg(Phi(:,S(1:t)),y);
-    res = y- Phi(:,S(1:t))*x_est;
+    res = y - Phi(:,S(1:t))*x_est;
     x(S(1:t)) = x_est;
     pre_res = curr_res;
 end;
