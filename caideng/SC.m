@@ -14,6 +14,9 @@ G = max(G,G');
 %s = sum(G);
 %find(s <= 0.00001)
 
+%Woptions.k = 5;
+%Woptions.t = t;
+%G = constructW(fea,Woptions);
 
 % calculate Eigen vectors
 Y = Eigenmap(G,k,1);

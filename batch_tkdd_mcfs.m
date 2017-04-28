@@ -4,8 +4,8 @@ thresh_fail_sc = 15.0; % only allow 15 degree differance
 thresh_fail_sc = (thresh_fail_sc*pi)/180.0;
 
 %file_list ={'orl','yale','warpPIE10P','orlraws10p','basehock','relathe','pcmac','reuters21578','lymphoma','lung','carcinom','cll_sub_111'};
+file_list ={'basehock','relathe','pcmac','reuters21578'};
 
-file_list={'basehock'};
 num_file = size(file_list,2)
 
 % start for each data
@@ -32,8 +32,8 @@ num_th = length(th);
 selected_f = [10:5:60];
 num_f = length(selected_f);
 
-my_nmi = zeros(num_f,num_th,num_file);
-my_acc = zeros(num_f,num_th,num_file);
+my_nmi = zeros(num_f,num_th);
+my_acc = zeros(num_f,num_th);
 
 % 
 for i = 1:length(th)
@@ -70,7 +70,7 @@ for i = 1:length(th)
     for j = 1:length(selected_f)
       sf_idx = FeaIndex{j};
       try
-        [my_nmi(j,i,k),my_acc(j,i,k)] = checkSC(filtered_fea(:,sf_idx),max(gnd),gnd);
+        [my_nmi(j,i),my_acc(j,i)] = checkSC(filtered_fea(:,sf_idx),max(gnd),gnd);
       catch
           disp('failed on finding enough eigenvalues');
       end
@@ -78,5 +78,8 @@ for i = 1:length(th)
 
     clear label;
 end
+    %save result
+    save(sprintf('%s_sc.mat',file_name),'my_nmi','my_acc');
+    
 end
 
